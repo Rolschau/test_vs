@@ -1,0 +1,28 @@
+name: Publish AWS
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: create zip package
+        run: cd site; zip ../site.zip *;
+
+      - name: Deploy to AWS EB
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws_secret_key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          application_name: test
+          environment_name: test-env
+          version_label: ${{github.run_id}}
+          region: us-east-2
+          deployment_package: site.zip
